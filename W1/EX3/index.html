@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lumen - ứng dụng học tiếng Anh cá nhân">
+  <title>Lumen | Học tiếng Anh mỗi ngày</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#today" aria-label="Lumen, trang chủ">
+        <span class="brand-mark">L</span>
+        <span>Lumen</span>
+      </a>
+      <p class="sidebar-caption">Không gian học tập</p>
+      <nav class="main-nav" aria-label="Điều hướng chính">
+        <button class="nav-link active" data-view="today"><span class="nav-icon">⌂</span>Hôm nay</button>
+        <button class="nav-link" data-view="words"><span class="nav-icon">◫</span>Từ vựng</button>
+        <button class="nav-link" data-view="practice"><span class="nav-icon">✦</span>Ôn tập</button>
+        <button class="nav-link" data-view="progress"><span class="nav-icon">↗</span>Tiến độ</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="streak-mini"><span class="flame">✦</span><div><strong id="sidebar-streak">0 ngày</strong><small>Chuỗi hiện tại</small></div></div>
+        <p class="sidebar-note">Một từ hôm nay,<br>một bước tiến xa.</p>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="mobile-brand"><span class="brand-mark">L</span><strong>Lumen</strong></div>
+        <div class="topbar-actions">
+          <button class="icon-button" id="theme-toggle" title="Đổi giao diện" aria-label="Đổi giao diện">◐</button>
+          <button class="avatar-button" title="Học viên">D</button>
+        </div>
+      </header>
+
+      <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+      <section class="view active" id="view-today" data-section="today">
+        <div class="view-heading"><div><p class="eyebrow">Thứ bảy, 12 tháng 9</p><h1>Chào bạn, Duy <span>✦</span></h1><p class="heading-subtitle">Sẵn sàng dành vài phút cho tiếng Anh chưa?</p></div><button class="button button-primary" id="start-learning">Bắt đầu học <span>→</span></button></div>
+        <div class="today-bento">
+          <article class="bento-card due-card"><span class="card-kicker">ÔN TẬP HÔM NAY</span><strong id="due-count">0</strong><span>từ đến hạn ôn</span><p>Giữ nhịp đều đặn để kiến thức ở lại lâu hơn.</p></article>
+          <article class="bento-card"><span class="card-kicker">TỪ MỚI</span><strong id="new-count">0</strong><span>từ đang chờ học</span></article>
+          <article class="bento-card"><span class="card-kicker">STREAK</span><strong id="streak-count">0 <small>ngày</small></strong><span>chuỗi hiện tại</span></article>
+          <article class="bento-card"><span class="card-kicker">TỔNG SỐ TỪ</span><strong id="total-words">0</strong><span>trong kho cá nhân</span></article>
+          <article class="bento-action"><div><span class="card-kicker">SẴN SÀNG CHƯA?</span><h2>Tiến bộ nhỏ, thay đổi lớn.</h2></div><button class="button button-primary" id="hero-practice">Ôn tập ngay <span>→</span></button></article>
+        </div>
+        <div class="section-row"><div><p class="eyebrow">Tổng quan</p><h2 class="section-title">Thói quen học tập</h2></div><span class="date-label">12 / 09 / 2026</span></div>
+        <div class="overview-grid"><article class="streak-card"><div><span class="card-kicker">NHỊP HỌC TUẦN NÀY</span><strong><span id="week-streak">0</span> <small>ngày</small></strong><p><span class="positive">↑ Giữ nhịp tốt</span> trong tuần này</p></div><div class="week-dots" id="week-dots"></div></article><article class="note-card"><div class="note-header"><span class="card-kicker">GHI CHÚ CỦA BẠN</span><span>✎</span></div><textarea id="notes" placeholder="Viết một điều bạn muốn nhớ hôm nay..."></textarea><span class="save-label">Tự động lưu</span></article></div>
+      </section>
+
+      <section class="view" id="view-words" data-section="words">
+        <div class="view-heading"><div><p class="eyebrow">Kho từ của bạn</p><h1>Từ vựng</h1><p class="heading-subtitle">Mỗi từ mới là một cánh cửa mới.</p></div><button class="button button-primary" id="add-word">＋ Thêm từ mới</button></div>
+        <div class="toolbar"><label class="search-box"><span>⌕</span><input id="search-input" type="search" placeholder="Tìm theo từ hoặc nghĩa..." autocomplete="off"></label><div class="toolbar-actions"><button class="button button-light" id="import-button">↓ Nhập dữ liệu</button><button class="button button-light" id="export-button">↑ Xuất dữ liệu</button><input id="import-input" type="file" accept="application/json" hidden></div></div>
+        <div class="word-list" id="word-list"><div class="skeleton-list" aria-label="Đang tải danh sách từ"><span></span><span></span><span></span></div></div>
+      </section>
+
+      <section class="view" id="view-practice" data-section="practice">
+        <div class="view-heading"><div><p class="eyebrow">Phòng luyện tập</p><h1>Ôn tập</h1><p class="heading-subtitle" id="practice-subtitle">Lật thẻ, nhớ lâu hơn.</p></div><button class="button button-light" id="dictation-button">◉ Luyện nghe</button></div>
+        <div class="practice-layout"><div class="flashcard-wrap"><div class="practice-progress"><span id="practice-progress">0 / 0</span><span id="practice-due-label">Từ đến hạn</span></div><div class="review-progress" aria-label="Tiến độ phiên học"><span id="review-progress-bar"></span></div><button class="flashcard" id="flashcard" aria-label="Bấm để lật thẻ"><div class="card-front"><span class="card-tag">TỪ VỰNG</span><strong id="flash-word">Chưa có thẻ</strong><span class="pronunciation" id="flash-pronunciation">Thêm từ để bắt đầu</span><span class="flip-hint">Bấm để lật thẻ <span>↻</span></span></div><div class="card-back"><span class="card-tag">NGHĨA & VÍ DỤ</span><strong id="flash-meaning">—</strong><p id="flash-example">—</p><span class="flip-hint">Bấm để xem mặt trước <span>↻</span></span></div></button><div class="review-actions" id="review-actions"><p>Bạn nhớ từ này đến đâu?</p><div><button class="review-button forgot" data-quality="0"><span>Quên</span><small>1 ngày · phím 1</small></button><button class="review-button hard" data-quality="3"><span>Khó</span><small>3 ngày · phím 2</small></button><button class="review-button easy" data-quality="5"><span>Dễ</span><small>6 ngày · phím 3</small></button></div></div><button class="button button-primary next-button" id="next-card">Tiếp theo <span>→</span></button></div><aside class="practice-aside"><div class="aside-heading"><span class="card-kicker">TIẾN ĐỘ BUỔI HỌC</span><span id="session-count">0%</span></div><div class="progress-track"><span id="session-bar"></span></div><p>Hoàn thành một phiên ngắn mỗi ngày để xây dựng thói quen bền vững.</p><button class="text-button" id="context-button">Luyện điền từ <span>↗</span></button></aside></div>
+      </section>
+
+      <section class="view" id="view-progress" data-section="progress">
+        <div class="view-heading"><div><p class="eyebrow">Nhìn lại hành trình</p><h1>Tiến độ</h1><p class="heading-subtitle">Những con số nhỏ kể một câu chuyện lớn.</p></div></div>
+        <div class="progress-summary"><article><span class="stat-icon green">◫</span><strong id="mastered-count">0</strong><span>Từ đã thuộc</span></article><article><span class="stat-icon">◷</span><strong id="total-reviews">0</strong><span>Lượt ôn tập</span></article><article><span class="stat-icon accent">✦</span><strong id="accuracy-rate">0%</strong><span>Độ chính xác</span></article></div>
+        <div class="progress-columns"><article class="chart-card"><div class="section-row compact"><div><span class="card-kicker">TỪ ĐÃ THUỘC</span><h2 class="section-title">30 ngày gần nhất</h2></div><span class="chart-legend"><i></i> Từ thuộc</span></div><div class="chart" id="progress-chart"></div></article><article class="mistakes-card"><div class="section-row compact"><div><span class="card-kicker">CẦN ÔN THÊM</span><h2 class="section-title">Hay quên nhất</h2></div></div><div id="mistakes-list"></div></article></div>
+      </section>
+    </main>
+  </div>
+
+  <dialog class="modal" id="word-modal"><form method="dialog" id="word-form"><div class="modal-header"><div><p class="eyebrow">Kho từ của bạn</p><h2 id="modal-title">Thêm từ mới</h2></div><button class="close-button" value="cancel" aria-label="Đóng">×</button></div><input type="hidden" id="word-id"><label>Từ tiếng Anh<input id="english-input" required placeholder="Ví dụ: resilient"></label><label>Nghĩa tiếng Việt<input id="meaning-input" required placeholder="Ví dụ: kiên cường"></label><label>Câu ví dụ<textarea id="example-input" required placeholder="She stayed resilient through every challenge."></textarea></label><div class="modal-actions"><button class="button button-light" value="cancel">Huỷ</button><button class="button button-primary" id="save-word" value="default">Lưu từ</button></div></form></dialog>
+  <dialog class="modal" id="dictation-modal"><div class="modal-header"><div><p class="eyebrow">Luyện nghe</p><h2>Nghe và gõ lại</h2></div><button class="close-button" id="close-dictation" aria-label="Đóng">×</button></div><div class="dictation-sentence"><span class="card-kicker">CÂU ĐƯỢC CHỌN</span><p id="dictation-example">—</p><button class="text-button" id="play-dictation">▶ Phát lại câu</button></div><label>Nhập câu bạn nghe được<input id="dictation-input" placeholder="Gõ câu tiếng Anh ở đây..."></label><button class="button button-primary full-button" id="check-dictation">Kiểm tra câu trả lời</button><div id="dictation-result" class="dictation-result"></div></dialog>
+  <dialog class="modal" id="context-modal"><div class="modal-header"><div><p class="eyebrow">Điền từ trong ngữ cảnh</p><h2>Hoàn thành câu</h2></div><button class="close-button" id="close-context" aria-label="Đóng">×</button></div><p class="context-sentence" id="context-sentence">—</p><label>Đáp án của bạn<input id="context-input" placeholder="Từ còn thiếu..."></label><button class="button button-primary full-button" id="check-context">Kiểm tra đáp án</button><div id="context-result" class="feedback"></div></dialog>
+  <script src="app.js"></script>
+</body>
+</html>

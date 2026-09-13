@@ -1,0 +1,1064 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lexi — Học tiếng Anh</title>
+  <style>
+    /* =========================
+       Minimal design system
+       ========================= */
+    :root {
+      --bg: #f6f7f9;
+      --surface: #ffffff;
+      --surface-2: #f0f2f5;
+      --text: #17191c;
+      --muted: #69707a;
+      --border: #dfe3e8;
+      --accent: #2563eb;
+      --accent-soft: #e8f0ff;
+      --danger: #dc2626;
+      --success: #16834b;
+      --shadow: 0 8px 30px rgba(15, 23, 42, .06);
+      --radius: 16px;
+    }
+
+    [data-theme="dark"] {
+      --bg: #101214;
+      --surface: #171a1e;
+      --surface-2: #20242a;
+      --text: #f4f5f7;
+      --muted: #9aa2ad;
+      --border: #2c323a;
+      --accent: #78a7ff;
+      --accent-soft: #1b3158;
+      --danger: #ff7373;
+      --success: #59d99a;
+      --shadow: 0 8px 30px rgba(0, 0, 0, .2);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+                   "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    button, input, textarea { font: inherit; }
+    button { cursor: pointer; }
+    .container { width: min(1100px, calc(100% - 32px)); margin: auto; }
+
+    /* Header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(12px);
+      background: color-mix(in srgb, var(--bg) 86%, transparent);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav {
+      min-height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .brand { font-weight: 800; letter-spacing: -.03em; font-size: 20px; }
+    .nav-actions { display: flex; gap: 8px; align-items: center; }
+    .nav-links {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .nav-links button, .icon-btn {
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      padding: 8px 10px;
+      border-radius: 10px;
+    }
+    .nav-links button:hover, .icon-btn:hover { background: var(--surface-2); color: var(--text); }
+
+    /* Generic */
+    main { padding: 34px 0 80px; }
+    section { display: none; }
+    section.active { display: block; }
+    .hero { padding: 28px 0 24px; }
+    .eyebrow {
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+    h1 { font-size: clamp(32px, 6vw, 52px); line-height: 1.05; margin: 8px 0 14px; letter-spacing: -.045em; }
+    h2 { margin: 0 0 8px; font-size: 26px; letter-spacing: -.025em; }
+    h3 { margin: 0 0 5px; }
+    .subtitle { color: var(--muted); max-width: 680px; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      padding: 10px 15px;
+      border-radius: 11px;
+      transition: .15s ease;
+    }
+    .btn:hover { transform: translateY(-1px); border-color: var(--accent); }
+    .btn.primary { background: var(--accent); border-color: var(--accent); color: white; }
+    .btn.danger { color: var(--danger); }
+    .btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+
+    .grid { display: grid; gap: 14px; }
+    .stats { grid-template-columns: repeat(4, 1fr); }
+    .two-col { grid-template-columns: 1.15fr .85fr; }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+    .stat-value { font-size: 30px; font-weight: 800; }
+    .muted { color: var(--muted); }
+    .empty {
+      padding: 45px 20px;
+      text-align: center;
+      color: var(--muted);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+    }
+
+    /* Forms */
+    .form-grid { display: grid; gap: 12px; }
+    label { display: grid; gap: 6px; font-weight: 650; font-size: 14px; }
+    input, textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      padding: 11px 12px;
+      outline: none;
+      background: var(--surface);
+      color: var(--text);
+    }
+    input:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+    textarea { min-height: 90px; resize: vertical; }
+
+    /* Vocabulary list */
+    .toolbar { display: flex; gap: 10px; margin: 18px 0; }
+    .toolbar input { flex: 1; }
+    .word-list { display: grid; gap: 10px; }
+    .word-row {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr auto;
+      gap: 14px;
+      align-items: center;
+      padding: 15px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 13px;
+    }
+    .word { font-weight: 800; }
+    .example { color: var(--muted); font-size: 14px; }
+    .row-actions { display: flex; gap: 6px; }
+
+    /* Flashcard */
+    .study-wrap { max-width: 700px; margin: 20px auto; }
+    .flashcard {
+      min-height: 360px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 30px;
+      perspective: 1000px;
+    }
+    .flash-inner {
+      width: 100%;
+      min-height: 330px;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform .45s;
+    }
+    .flashcard.flipped .flash-inner { transform: rotateY(180deg); }
+    .face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      display: grid;
+      place-content: center;
+      gap: 14px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      padding: 30px;
+    }
+    .back { transform: rotateY(180deg); }
+    .flash-word { font-size: clamp(38px, 8vw, 66px); font-weight: 850; letter-spacing: -.04em; }
+    .speaker {
+      border: 0;
+      background: var(--surface-2);
+      color: var(--text);
+      border-radius: 50%;
+      width: 42px;
+      height: 42px;
+      margin: auto;
+    }
+    .rating { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
+
+    /* Exercises */
+    .exercise { max-width: 700px; margin: 20px auto; }
+    .prompt { font-size: 22px; margin: 22px 0; }
+    .result { margin-top: 12px; font-weight: 700; }
+    .correct { color: var(--success); }
+    .wrong { color: var(--danger); text-decoration: underline wavy; }
+
+    /* Progress */
+    .chart {
+      display: grid;
+      grid-template-columns: repeat(30, 1fr);
+      align-items: end;
+      gap: 4px;
+      height: 220px;
+      margin-top: 20px;
+    }
+    .bar-wrap { height: 100%; display: flex; align-items: end; }
+    .bar {
+      width: 100%;
+      min-height: 2px;
+      background: var(--accent);
+      border-radius: 4px 4px 0 0;
+    }
+    .chart-labels { display: flex; justify-content: space-between; color: var(--muted); font-size: 11px; margin-top: 6px; }
+
+    /* Dictation comparison */
+    .comparison {
+      margin-top: 15px;
+      padding: 15px;
+      background: var(--surface-2);
+      border-radius: 12px;
+      line-height: 2;
+    }
+    .comparison span { margin-right: 5px; }
+
+    footer { text-align: center; color: var(--muted); padding: 20px 0; }
+
+    @media (max-width: 800px) {
+      .nav-links { display: none; }
+      .stats, .two-col { grid-template-columns: 1fr 1fr; }
+      .word-row { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 520px) {
+      .stats { grid-template-columns: 1fr 1fr; }
+      .nav { min-height: 58px; }
+      main { padding-top: 20px; }
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="container nav">
+    <div class="brand">Lexi</div>
+    <nav class="nav-links" aria-label="Điều hướng">
+      <button onclick="showSection('today')">Hôm nay</button>
+      <button onclick="showSection('words')">Từ vựng</button>
+      <button onclick="showSection('study')">Ôn tập</button>
+      <button onclick="showSection('dictation')">Luyện nghe</button>
+      <button onclick="showSection('context')">Điền từ</button>
+      <button onclick="showSection('progress')">Tiến độ</button>
+    </nav>
+    <div class="nav-actions">
+      <button class="icon-btn" onclick="toggleTheme()" title="Đổi giao diện">◐</button>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- 5. Màn hình hôm nay -->
+  <section id="today" class="active">
+    <div class="hero">
+      <div class="eyebrow">English learning</div>
+      <h1>Học một chút.<br>Nhớ lâu hơn.</h1>
+      <p class="subtitle">Một không gian học tiếng Anh offline, tối giản và tập trung vào việc ôn đúng lúc.</p>
+      <div class="actions">
+        <button class="btn primary" onclick="startStudy()">Bắt đầu học</button>
+        <button class="btn" onclick="showSection('words'); openWordForm()">Thêm từ mới</button>
+      </div>
+    </div>
+
+    <div class="grid stats">
+      <div class="card"><div class="muted">Đến hạn ôn</div><div class="stat-value" id="dueCount">0</div></div>
+      <div class="card"><div class="muted">Từ mới</div><div class="stat-value" id="newCount">0</div></div>
+      <div class="card"><div class="muted">Streak</div><div class="stat-value"><span id="streak">0</span> ngày</div></div>
+      <div class="card"><div class="muted">Tổng từ</div><div class="stat-value" id="totalCount">0</div></div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <h3>Ghi chú hôm nay</h3>
+      <textarea id="notes" placeholder="Ghi lại điều bạn muốn nhớ..."></textarea>
+      <p class="muted" style="font-size:13px;margin-bottom:0">Ghi chú được lưu trong LocalStorage.</p>
+    </div>
+  </section>
+
+  <!-- 1 + 2. Thêm từ và danh sách -->
+  <section id="words">
+    <div class="hero">
+      <div class="eyebrow">Vocabulary</div>
+      <h2>Từ vựng</h2>
+      <p class="subtitle">Thêm, tìm kiếm, sửa hoặc xoá từ đã lưu.</p>
+    </div>
+
+    <div id="wordForm" class="card" style="display:none;margin-bottom:14px">
+      <h3 id="formTitle">Thêm từ mới</h3>
+      <form id="wordFormEl" class="form-grid" style="margin-top:14px">
+        <label>Từ tiếng Anh
+          <input id="english" required placeholder="e.g. resilient">
+        </label>
+        <label>Nghĩa tiếng Việt
+          <input id="vietnamese" required placeholder="e.g. kiên cường">
+        </label>
+        <label>Câu ví dụ
+          <textarea id="example" required placeholder="e.g. She is resilient in difficult situations."></textarea>
+        </label>
+        <div class="actions">
+          <button class="btn primary" type="submit">Lưu từ</button>
+          <button class="btn" type="button" onclick="closeWordForm()">Huỷ</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="toolbar">
+      <input id="search" placeholder="Tìm theo từ hoặc nghĩa..." oninput="renderWords()">
+      <button class="btn primary" onclick="openWordForm()">+ Thêm từ mới</button>
+    </div>
+    <div id="wordList" class="word-list"></div>
+  </section>
+
+  <!-- 3 + 4. Flashcard + SM-2 -->
+  <section id="study">
+    <div class="hero">
+      <div class="eyebrow">Spaced repetition</div>
+      <h2>Ôn tập</h2>
+      <p class="subtitle" id="studyStatus">Các thẻ đến hạn sẽ được đưa vào phiên học.</p>
+    </div>
+
+    <div id="studyEmpty" class="empty" style="display:none">
+      Không có từ nào đến hạn. Hãy thêm từ mới hoặc quay lại vào ngày ôn tiếp theo.
+    </div>
+
+    <div id="studyArea" class="study-wrap">
+      <div id="flashcard" class="flashcard" onclick="flipCard()">
+        <div class="flash-inner">
+          <div class="face front">
+            <div class="muted">Bấm vào thẻ để lật</div>
+            <div class="flash-word" id="cardWord">—</div>
+            <button class="speaker" onclick="event.stopPropagation(); speakCurrent()">🔊</button>
+          </div>
+          <div class="face back">
+            <div class="flash-word" id="cardMeaning">—</div>
+            <div class="example" id="cardExample">—</div>
+            <button class="speaker" onclick="event.stopPropagation(); speakCurrent()">🔊</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="rating">
+        <button class="btn danger" onclick="rateCurrent(0)">Quên</button>
+        <button class="btn" onclick="rateCurrent(3)">Khó</button>
+        <button class="btn primary" onclick="rateCurrent(5)">Dễ</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. Dictation -->
+  <section id="dictation">
+    <div class="hero">
+      <div class="eyebrow">Listening</div>
+      <h2>Luyện nghe — Dictation</h2>
+      <p class="subtitle">Nghe câu ví dụ rồi gõ lại. Từ sai sẽ được đánh dấu.</p>
+    </div>
+    <div class="card exercise">
+      <div class="muted">Câu hiện tại</div>
+      <div class="prompt" id="dictationSentence">Chưa có câu.</div>
+      <div class="actions">
+        <button class="btn" onclick="speakDictation()">🔊 Nghe câu</button>
+        <button class="btn" onclick="newDictation()">Câu khác</button>
+      </div>
+      <label style="margin-top:18px">Câu bạn nghe được
+        <textarea id="dictationInput" placeholder="Gõ lại câu vừa nghe..."></textarea>
+      </label>
+      <button class="btn primary" style="margin-top:10px" onclick="checkDictation()">Kiểm tra</button>
+      <div id="dictationResult"></div>
+    </div>
+  </section>
+
+  <!-- 8. Context fill -->
+  <section id="context">
+    <div class="hero">
+      <div class="eyebrow">Context</div>
+      <h2>Điền từ trong ngữ cảnh</h2>
+      <p class="subtitle">Từ đã lưu sẽ được ẩn khỏi câu ví dụ.</p>
+    </div>
+    <div class="card exercise">
+      <div class="muted" id="contextHint">—</div>
+      <div class="prompt" id="contextSentence">Chưa có bài.</div>
+      <input id="contextInput" placeholder="Nhập từ còn thiếu..." onkeydown="if(event.key==='Enter') checkContext()">
+      <button class="btn primary" style="margin-top:10px" onclick="checkContext()">Kiểm tra</button>
+      <div id="contextResult" class="result"></div>
+    </div>
+  </section>
+
+  <!-- 9. Thống kê -->
+  <section id="progress">
+    <div class="hero">
+      <div class="eyebrow">Progress</div>
+      <h2>Tiến độ</h2>
+      <p class="subtitle">Số từ đã thuộc theo từng ngày trong 30 ngày gần nhất.</p>
+    </div>
+
+    <div class="card">
+      <h3>Từ đã thuộc</h3>
+      <div id="chart" class="chart"></div>
+      <div class="chart-labels"><span>30 ngày trước</span><span>Hôm nay</span></div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <h3>Những từ sai nhiều nhất</h3>
+      <div id="mistakes"></div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <h3>Dữ liệu</h3>
+      <p class="muted">IndexedDB lưu từ vựng + lịch ôn tập. LocalStorage lưu theme và ghi chú.</p>
+      <div class="actions">
+        <button class="btn" onclick="exportData()">Xuất dữ liệu</button>
+        <label class="btn" style="display:inline-flex;align-items:center;cursor:pointer">
+          Nhập dữ liệu
+          <input id="importFile" type="file" accept="application/json,.json" hidden onchange="importData(event)">
+        </label>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>Lexi · Offline English Learning</footer>
+
+<script>
+  /* ==========================================================
+     IndexedDB
+     ========================================================== */
+  const DB_NAME = "lexi_english_db";
+  const DB_VERSION = 1;
+  let db;
+
+  function openDB() {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open(DB_NAME, DB_VERSION);
+      req.onupgradeneeded = e => {
+        const database = e.target.result;
+        if (!database.objectStoreNames.contains("words")) {
+          database.createObjectStore("words", { keyPath: "id", autoIncrement: true });
+        }
+      };
+      req.onsuccess = e => { db = e.target.result; resolve(db); };
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  function tx(mode = "readonly") {
+    return db.transaction("words", mode).objectStore("words");
+  }
+
+  function getAllWords() {
+    return new Promise((resolve, reject) => {
+      const req = tx().getAll();
+      req.onsuccess = () => resolve(req.result || []);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  function putWord(word) {
+    return new Promise((resolve, reject) => {
+      const req = tx("readwrite").put(word);
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  function deleteWord(id) {
+    return new Promise((resolve, reject) => {
+      const req = tx("readwrite").delete(id);
+      req.onsuccess = resolve;
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  /* ==========================================================
+     State
+     ========================================================== */
+  let words = [];
+  let studyQueue = [];
+  let studyIndex = 0;
+  let currentDictation = null;
+  let currentContext = null;
+  let editingId = null;
+
+  const todayKey = () => new Date().toISOString().slice(0, 10);
+
+  function dateOnly(date = new Date()) {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  }
+
+  function addDays(date, days) {
+    const d = dateOnly(date);
+    d.setDate(d.getDate() + days);
+    return d.toISOString().slice(0, 10);
+  }
+
+  /* ==========================================================
+     SM-2
+     ========================================================== */
+  function sm2(word, quality) {
+    let { repetitions = 0, interval = 0, easeFactor = 2.5 } = word;
+
+    if (quality < 3) {
+      repetitions = 0;
+      interval = 1;
+    } else {
+      if (repetitions === 0) interval = 1;
+      else if (repetitions === 1) interval = 6;
+      else interval = Math.round(interval * easeFactor);
+
+      repetitions += 1;
+      easeFactor = Math.max(
+        1.3,
+        easeFactor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02))
+      );
+    }
+
+    return {
+      ...word,
+      repetitions,
+      interval,
+      easeFactor,
+      nextReview: addDays(new Date(), interval),
+      lastReviewed: todayKey()
+    };
+  }
+
+  function isDue(word) {
+    return !word.nextReview || word.nextReview <= todayKey();
+  }
+
+  /* ==========================================================
+     Navigation
+     ========================================================== */
+  function showSection(id) {
+    document.querySelectorAll("main section").forEach(s => s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+
+    if (id === "today") renderToday();
+    if (id === "words") renderWords();
+    if (id === "study") startStudy();
+    if (id === "dictation") newDictation();
+    if (id === "context") newContext();
+    if (id === "progress") renderProgress();
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  /* ==========================================================
+     1 + 2. Vocabulary CRUD
+     ========================================================== */
+  function openWordForm(id = null) {
+    editingId = id;
+    document.getElementById("wordForm").style.display = "block";
+    document.getElementById("formTitle").textContent = id ? "Sửa từ" : "Thêm từ mới";
+
+    const word = words.find(w => w.id === id);
+    document.getElementById("english").value = word?.english || "";
+    document.getElementById("vietnamese").value = word?.vietnamese || "";
+    document.getElementById("example").value = word?.example || "";
+    document.getElementById("english").focus();
+  }
+
+  function closeWordForm() {
+    editingId = null;
+    document.getElementById("wordForm").style.display = "none";
+    document.getElementById("wordFormEl").reset();
+  }
+
+  document.getElementById("wordFormEl").addEventListener("submit", async e => {
+    e.preventDefault();
+
+    const existing = words.find(w => w.id === editingId);
+    const word = {
+      ...(existing || {}),
+      ...(editingId ? { id: editingId } : {}),
+      english: document.getElementById("english").value.trim(),
+      vietnamese: document.getElementById("vietnamese").value.trim(),
+      example: document.getElementById("example").value.trim(),
+
+      // Các trường phục vụ SM-2.
+      repetitions: existing?.repetitions || 0,
+      interval: existing?.interval || 0,
+      easeFactor: existing?.easeFactor || 2.5,
+      nextReview: existing?.nextReview || todayKey(),
+      correctCount: existing?.correctCount || 0,
+      mistakeCount: existing?.mistakeCount || 0,
+      createdAt: existing?.createdAt || new Date().toISOString()
+    };
+
+    await putWord(word);
+    words = await getAllWords();
+    closeWordForm();
+    renderWords();
+    renderToday();
+  });
+
+  async function editWord(id) {
+    showSection("words");
+    openWordForm(id);
+  }
+
+  async function removeWord(id) {
+    const word = words.find(w => w.id === id);
+    if (!word) return;
+    if (!confirm(`Xoá từ "${word.english}"?`)) return;
+
+    await deleteWord(id);
+    words = await getAllWords();
+    renderWords();
+    renderToday();
+  }
+
+  function renderWords() {
+    const query = document.getElementById("search").value.trim().toLowerCase();
+    const filtered = words
+      .filter(w =>
+        w.english.toLowerCase().includes(query) ||
+        w.vietnamese.toLowerCase().includes(query)
+      )
+      .sort((a, b) => a.english.localeCompare(b.english));
+
+    const el = document.getElementById("wordList");
+
+    if (!filtered.length) {
+      el.innerHTML = `<div class="empty">${query ? "Không tìm thấy từ phù hợp." : "Chưa có từ nào. Hãy thêm từ đầu tiên."}</div>`;
+      return;
+    }
+
+    el.innerHTML = filtered.map(w => `
+      <div class="word-row">
+        <div>
+          <div class="word">${escapeHTML(w.english)}</div>
+          <div class="muted">${escapeHTML(w.vietnamese)}</div>
+        </div>
+        <div class="example">${escapeHTML(w.example)}</div>
+        <div class="row-actions">
+          <button class="btn" onclick="speak('${escapeAttr(w.english)}')">🔊</button>
+          <button class="btn" onclick="editWord(${w.id})">Sửa</button>
+          <button class="btn danger" onclick="removeWord(${w.id})">Xoá</button>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  /* ==========================================================
+     3 + 4. Flashcard
+     ========================================================== */
+  function startStudy() {
+    showSectionWithoutRestart("study");
+    studyQueue = words.filter(isDue).sort(() => Math.random() - .5);
+    studyIndex = 0;
+
+    document.getElementById("studyStatus").textContent =
+      `${studyQueue.length} từ đến hạn trong phiên này.`;
+
+    const empty = document.getElementById("studyEmpty");
+    const area = document.getElementById("studyArea");
+
+    if (!studyQueue.length) {
+      empty.style.display = "block";
+      area.style.display = "none";
+      return;
+    }
+
+    empty.style.display = "none";
+    area.style.display = "block";
+    renderCurrentCard();
+  }
+
+  // Tránh gọi startStudy lồng khi điều hướng.
+  function showSectionWithoutRestart(id) {
+    document.querySelectorAll("main section").forEach(s => s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+  }
+
+  function renderCurrentCard() {
+    const word = studyQueue[studyIndex];
+    if (!word) {
+      document.getElementById("studyStatus").textContent = "Hoàn thành phiên học.";
+      document.getElementById("studyArea").innerHTML =
+        `<div class="empty">Đã ôn xong các từ trong phiên này.</div>`;
+      return;
+    }
+
+    document.getElementById("cardWord").textContent = word.english;
+    document.getElementById("cardMeaning").textContent = word.vietnamese;
+    document.getElementById("cardExample").textContent = word.example;
+    document.getElementById("flashcard").classList.remove("flipped");
+  }
+
+  function flipCard() {
+    if (studyQueue[studyIndex]) {
+      document.getElementById("flashcard").classList.toggle("flipped");
+    }
+  }
+
+  async function rateCurrent(quality) {
+    const current = studyQueue[studyIndex];
+    if (!current) return;
+
+    const updated = sm2(current, quality);
+    if (quality < 3) updated.mistakeCount = (updated.mistakeCount || 0) + 1;
+    else updated.correctCount = (updated.correctCount || 0) + 1;
+
+    await putWord(updated);
+
+    // Ghi nhận ngày học thuộc để biểu đồ.
+    if (quality >= 3) recordProgress();
+
+    words = await getAllWords();
+    studyQueue[studyIndex] = updated;
+    studyIndex++;
+    renderCurrentCard();
+    renderToday();
+  }
+
+  /* ==========================================================
+     6. Web Speech API
+     ========================================================== */
+  function speak(text) {
+    if (!("speechSynthesis" in window)) {
+      alert("Trình duyệt này không hỗ trợ Web Speech API.");
+      return;
+    }
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "en-US";
+    utterance.rate = .9;
+    window.speechSynthesis.speak(utterance);
+  }
+
+  function speakCurrent() {
+    const current = studyQueue[studyIndex];
+    if (current) speak(current.english);
+  }
+
+  /* ==========================================================
+     7. Dictation
+     ========================================================== */
+  function newDictation() {
+    const candidates = words.filter(w => w.example);
+    if (!candidates.length) {
+      currentDictation = null;
+      document.getElementById("dictationSentence").textContent =
+        "Hãy thêm ít nhất một từ có câu ví dụ.";
+      return;
+    }
+
+    currentDictation = candidates[Math.floor(Math.random() * candidates.length)];
+    document.getElementById("dictationSentence").textContent = "••• ••• •••";
+    document.getElementById("dictationInput").value = "";
+    document.getElementById("dictationResult").innerHTML = "";
+  }
+
+  function speakDictation() {
+    if (!currentDictation) return;
+    speak(currentDictation.example);
+  }
+
+  function normalizeText(text) {
+    return text.toLowerCase().trim().replace(/[.,!?;:"'()[\]{}]/g, "").split(/\s+/);
+  }
+
+  function checkDictation() {
+    if (!currentDictation) return;
+
+    const expected = normalizeText(currentDictation.example);
+    const actual = normalizeText(document.getElementById("dictationInput").value);
+
+    const max = Math.max(expected.length, actual.length);
+    let html = "";
+
+    for (let i = 0; i < max; i++) {
+      const exp = expected[i] || "";
+      const got = actual[i] || "";
+      html += `<span class="${exp === got ? "correct" : "wrong"}">${escapeHTML(got || "∅")}</span>`;
+    }
+
+    document.getElementById("dictationResult").innerHTML =
+      `<div class="comparison">${html}</div>
+       <div class="muted" style="margin-top:8px">Câu đúng: ${escapeHTML(currentDictation.example)}</div>`;
+
+    if (actual.join(" ") !== expected.join(" ")) {
+      currentDictation.mistakeCount = (currentDictation.mistakeCount || 0) + 1;
+      putWord(currentDictation);
+    }
+  }
+
+  /* ==========================================================
+     8. Context fill
+     ========================================================== */
+  function newContext() {
+    const candidates = words.filter(w => w.example && w.english);
+    if (!candidates.length) {
+      currentContext = null;
+      document.getElementById("contextHint").textContent = "Chưa có dữ liệu.";
+      document.getElementById("contextSentence").textContent =
+        "Hãy thêm từ kèm câu ví dụ.";
+      return;
+    }
+
+    currentContext = candidates[Math.floor(Math.random() * candidates.length)];
+
+    // Thay từ bằng blank, không phân biệt hoa thường.
+    const escaped = currentContext.english.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const blanked = currentContext.example.replace(
+      new RegExp(`\\b${escaped}\\b`, "i"),
+      "_____"
+    );
+
+    document.getElementById("contextHint").textContent =
+      `Gợi ý: ${currentContext.vietnamese}`;
+    document.getElementById("contextSentence").textContent = blanked;
+    document.getElementById("contextInput").value = "";
+    document.getElementById("contextResult").textContent = "";
+  }
+
+  async function checkContext() {
+    if (!currentContext) return;
+
+    const answer = document.getElementById("contextInput").value.trim();
+    const ok = answer.toLowerCase() === currentContext.english.toLowerCase();
+    const result = document.getElementById("contextResult");
+
+    if (ok) {
+      result.className = "result correct";
+      result.textContent = "Đúng.";
+      currentContext.correctCount = (currentContext.correctCount || 0) + 1;
+    } else {
+      result.className = "result wrong";
+      result.textContent = `Chưa đúng. Đáp án: ${currentContext.english}`;
+      currentContext.mistakeCount = (currentContext.mistakeCount || 0) + 1;
+    }
+
+    await putWord(currentContext);
+    words = await getAllWords();
+    renderToday();
+  }
+
+  /* ==========================================================
+     9. Progress
+     ========================================================== */
+  function progressKey() { return "lexi_progress"; }
+
+  function getProgress() {
+    try { return JSON.parse(localStorage.getItem(progressKey()) || "{}"); }
+    catch { return {}; }
+  }
+
+  function recordProgress() {
+    const progress = getProgress();
+    const key = todayKey();
+    progress[key] = (progress[key] || 0) + 1;
+    localStorage.setItem(progressKey(), JSON.stringify(progress));
+  }
+
+  function renderProgress() {
+    const progress = getProgress();
+    const days = [];
+    for (let i = 29; i >= 0; i--) days.push(addDays(new Date(), -i));
+
+    const values = days.map(d => progress[d] || 0);
+    const max = Math.max(1, ...values);
+
+    document.getElementById("chart").innerHTML = values.map(value => `
+      <div class="bar-wrap" title="${value} từ">
+        <div class="bar" style="height:${Math.max(1, value / max * 100)}%"></div>
+      </div>
+    `).join("");
+
+    const mistakes = [...words]
+      .filter(w => (w.mistakeCount || 0) > 0)
+      .sort((a, b) => (b.mistakeCount || 0) - (a.mistakeCount || 0))
+      .slice(0, 10);
+
+    document.getElementById("mistakes").innerHTML = mistakes.length
+      ? mistakes.map(w => `
+          <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:10px 0">
+            <span><strong>${escapeHTML(w.english)}</strong> · ${escapeHTML(w.vietnamese)}</span>
+            <span class="wrong">${w.mistakeCount || 0} lần</span>
+          </div>
+        `).join("")
+      : `<div class="empty" style="margin-top:12px">Chưa có dữ liệu sai.</div>`;
+  }
+
+  /* ==========================================================
+     10. Import / Export
+     ========================================================== */
+  async function exportData() {
+    const data = {
+      exportedAt: new Date().toISOString(),
+      words
+    };
+
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `lexi-backup-${todayKey()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  async function importData(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    try {
+      const parsed = JSON.parse(await file.text());
+      const imported = Array.isArray(parsed) ? parsed : parsed.words;
+
+      if (!Array.isArray(imported)) throw new Error("File không đúng định dạng.");
+
+      // Gộp theo từ tiếng Anh; dữ liệu mới hơn sẽ ghi đè bản cũ cùng từ.
+      const byEnglish = new Map(words.map(w => [w.english.toLowerCase(), w]));
+
+      imported.forEach(raw => {
+        if (!raw?.english) return;
+        const existing = byEnglish.get(raw.english.toLowerCase());
+
+        const merged = {
+          ...existing,
+          ...raw,
+          id: existing?.id, // bỏ ID cũ của file để tránh xung đột IndexedDB
+          repetitions: raw.repetitions ?? existing?.repetitions ?? 0,
+          interval: raw.interval ?? existing?.interval ?? 0,
+          easeFactor: raw.easeFactor ?? existing?.easeFactor ?? 2.5,
+          nextReview: raw.nextReview ?? existing?.nextReview ?? todayKey()
+        };
+
+        if (existing) {
+          putWord(merged);
+        } else {
+          delete merged.id;
+          putWord(merged);
+        }
+      });
+
+      // Chờ transaction độc lập hoàn tất bằng cách reload dữ liệu.
+      setTimeout(async () => {
+        words = await getAllWords();
+        renderWords();
+        renderToday();
+        alert(`Đã nhập ${imported.length} mục.`);
+      }, 200);
+
+    } catch (err) {
+      alert("Không thể nhập file JSON: " + err.message);
+    } finally {
+      event.target.value = "";
+    }
+  }
+
+  /* ==========================================================
+     5 + streak + notes
+     ========================================================== */
+  function renderToday() {
+    const due = words.filter(isDue).length;
+    const fresh = words.filter(w => !w.lastReviewed).length;
+
+    document.getElementById("dueCount").textContent = due;
+    document.getElementById("newCount").textContent = fresh;
+    document.getElementById("totalCount").textContent = words.length;
+    document.getElementById("streak").textContent = calculateStreak();
+  }
+
+  function calculateStreak() {
+    const progress = getProgress();
+    let streak = 0;
+    let d = new Date();
+
+    // Nếu hôm nay chưa học thì tính từ hôm qua.
+    if (!progress[todayKey()]) d.setDate(d.getDate() - 1);
+
+    while (progress[d.toISOString().slice(0, 10)] > 0) {
+      streak++;
+      d.setDate(d.getDate() - 1);
+    }
+    return streak;
+  }
+
+  /* ==========================================================
+     Theme + LocalStorage
+     ========================================================== */
+  function toggleTheme() {
+    const current = document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+    const next = current === "dark" ? "light" : "dark";
+    document.documentElement.dataset.theme = next;
+    localStorage.setItem("lexi_theme", next);
+  }
+
+  function initTheme() {
+    const saved = localStorage.getItem("lexi_theme");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    document.documentElement.dataset.theme = saved || (prefersDark ? "dark" : "light");
+  }
+
+  const notes = document.getElementById("notes");
+  notes.value = localStorage.getItem("lexi_notes") || "";
+  notes.addEventListener("input", () => localStorage.setItem("lexi_notes", notes.value));
+
+  /* ==========================================================
+     Helpers
+     ========================================================== */
+  function escapeHTML(value) {
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function escapeAttr(value) {
+    return String(value ?? "").replaceAll("\\", "\\\\").replaceAll("'", "\\'");
+  }
+
+  /* ==========================================================
+     App init
+     ========================================================== */
+  (async function init() {
+    initTheme();
+    await openDB();
+    words = await getAllWords();
+
+    renderToday();
+    renderWords();
+    newDictation();
+    newContext();
+  })();
+</script>
+</body>
+</html>
