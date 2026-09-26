@@ -27,10 +27,16 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
+      - name: Assemble site
+        run: |
+          mkdir -p _site/BaiTapCSS
+          cp -R baitap01/. _site/
+          cp -R BaiTapCSS/. _site/BaiTapCSS/
+
       - name: Upload site artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./baitap01
+          path: ./_site
 
       - name: Deploy to GitHub Pages
         id: deployment
