@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const { authenticate } = require("../middleware/auth");
 const { fail, detail, userView } = require("../utils/http");
+
 const router = express.Router();
 
 const ACCESS_TTL = Number(process.env.ACCESS_TOKEN_TTL || 3600);

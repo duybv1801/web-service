@@ -79,20 +79,39 @@ const USERS = [
         phone: "+84394085998", 
         password: "Admin@2026", 
         roles: ["custom"]
+    },
+    {
+        email: "duy.bv251054m+5@sis.hust.edu.vn", 
+        fullName: "Bùi Văn Duy",
+        status: "locked", 
+        phone: "+84394085998", 
+        password: "Admin@2026", 
+        roles: ["custom"]
     }
 ];
 
 (async () => {
     await mongoose.connect(process.env.MONGODB_URI);
-    await Promise.all([Permission.deleteMany({}), Role.deleteMany({}),
-    User.deleteMany({})]);
+
+    await Promise.all([
+        Permission.deleteMany({}),
+        Role.deleteMany({}),
+        User.deleteMany({})
+    ]);
+
     await Promise.all([Permission.init(), Role.init(), User.init()]); // tạo unique index
+
     await Permission.insertMany(PERMISSIONS);
+
     const roles = await Role.insertMany(ROLES);
     const roleId = Object.fromEntries(roles.map((r) => [r.code, r._id]));
+    
     for (const u of USERS) {
         await User.create({
-            email: u.email, fullName: u.fullName, phone: u.phone ?? null,
+            email: u.email, 
+            fullName: u.fullName, 
+            phone: u.phone ?? null,
+            status: u.status ?? "active",
             passwordHash: await bcrypt.hash(u.password, 10),
             roles: u.roles.map((code) => roleId[code]),
         });
