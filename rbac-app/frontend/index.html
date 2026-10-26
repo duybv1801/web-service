@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Người dùng & Phân quyền</title>
+
+    <!-- React CDN -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Axios CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        /* TODO: Thêm CSS (mục 3.11) */
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        // TODO: api, components
+        // 1. axios instance, interceptor
+        const { useState, useEffect, useCallback, useRef } = React;
+        const API_BASE = "http://localhost:3001/api/v1";
+        // Làm Frontend trước với mock server của giảng viên:
+        // const API_BASE = "<MOCK_URL>/good/api/v1";
+
+        const TOKEN_KEY = "rbac_token";
+        const getToken = () => sessionStorage.getItem(TOKEN_KEY);
+        const setToken = (t) => (t ? sessionStorage.setItem(TOKEN_KEY, t) :
+            sessionStorage.removeItem(TOKEN_KEY));
+        const api = axios.create({ baseURL: API_BASE, timeout: 10000 });
+
+        // Request interceptor: tự gắn Bearer token cho MỌI request
+        api.interceptors.request.use((config) => {
+            const token = getToken();
+            if (token) config.headers.Authorization = `Bearer ${token}`;
+            return config;
+        });
+
+        // Response interceptor: chuẩn hóa lỗi + xử lý 401 tập trung
+        api.interceptors.response.use(
+            (res) => res,
+            (error) => {
+                if (!error.response) {
+                    return Promise.reject({
+                        status: 0, code: "NETWORK_ERROR", details: [],
+                        message: error.code === "ECONNABORTED" ? "Máy chủ phản hồi quá lâu." :
+                            "Không kết nối được máy chủ (kiểm tra server, mạng hoặc CORS).",
+                    });
+                }
+                const { status, data } = error.response;
+                const err = {
+                    status,
+                    code: data?.error?.code || `HTTP_${status}`,
+                    message: data?.error?.message || `Lỗi ${status}`,
+                    details: data?.error?.details || [],
+                };
+                if (status === 401 && !error.config.url.endsWith("/auth/tokens")) {
+                    setToken(null);
+                    window.dispatchEvent(new Event("auth:expired")); // App lắng nghe để về màn hình đăng nhập
+                }
+                return Promise.reject(err);
+            }
+        );
+
+        // Kiểm tra quyền phía giao diện (chỉ để ẩn/hiện)
+        const can = (me, perm) => !!me && me.permissions.includes(perm);
+        const sameId = (a, b) => String(a) === String(b);
+        
+    </script>
+</body>
+
+</html>
