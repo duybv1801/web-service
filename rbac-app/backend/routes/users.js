@@ -186,8 +186,10 @@ router.delete("/:userId", requirePermission("users:delete"), loadUser, async (re
     res.status(204).end();
 });
 
-router.get("/:userId/roles", requirePermission("users:read"), loadUser, (req, res) => 
-    res.json({ data: req.target.roles.filter((r) => r && r.code).map(roleSummary) }));
+router.get("/:userId/roles", requirePermission("users:read"), loadUser, (req, res) => {
+    const data = req.target.roles.filter((r) => r && r.code).map(roleSummary);
+    res.json({ data, meta: { totalItems: data.length } });
+});
 
 router.put("/:userId/roles/:roleId", requirePermission("roles:assign"), loadUser,
     loadRole, async (req, res) => {

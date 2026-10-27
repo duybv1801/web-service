@@ -83,7 +83,14 @@ function roleView(r, userCount) {
     };
 }
 
+const permissionView = (p) => ({
+    code: p.code,
+    resource: p.resource,
+    action: p.action,
+    description: p.description,
+});
+
 module.exports = {
     fail, detail, notAllowedFields, isObjectId, parsePaging,
-    parseSort, escapeRegex, pageMeta, userView, roleView, roleSummary
+    parseSort, escapeRegex, pageMeta, userView, roleView, roleSummary, permissionView
 };

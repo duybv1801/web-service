@@ -38,14 +38,12 @@ app.use((err, req, res, next) => {
         return fail(res, 400, "VALIDATION_ERROR", "Dữ liệu đầu vào không hợp lệ.", details);
     }
     if (err.code === 11000) {
-        // TODO: xác định trường bị trùng từ err.keyPattern -> EMAIL_ALREADY_EXISTS / ROLE_CODE_EXISTS
-        const fields = Object.keys(err.keyPattern ?? err.keyValue ?? {});
-        const details = fields.map((field) => {
-            const constName = field.replace(/([a-z0-9])([A-Z])/g, "$1_$2").replace(/\./g, "_").toUpperCase();
-            return detail(field, `${constName}_ALREADY_EXISTS`, `Giá trị của '${field}' đã tồn tại.`);
-        });
+        // Xác định trường bị trùng từ err.keyPattern -> EMAIL_ALREADY_EXISTS / ROLE_CODE_EXISTS
+        const keys = err.keyPattern ?? err.keyValue ?? {};
+        if ("email" in keys) return fail(res, 409, "EMAIL_ALREADY_EXISTS", "Email đã được sử dụng.");
+        if ("code" in keys) return fail(res, 409, "ROLE_CODE_EXISTS", "Mã vai trò đã tồn tại.");
 
-        return fail(res, 409, "CONFLICT", "Dữ liệu bị trùng.", details);
+        return fail(res, 409, "CONFLICT", "Dữ liệu bị trùng.");
     }
 
     console.error(err); // chi tiết chỉ ghi log phía server

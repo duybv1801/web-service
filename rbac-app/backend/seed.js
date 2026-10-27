@@ -40,6 +40,11 @@ const ROLES = [
     {
         code: "custom", name: "Custom role seed", isSystem: false,
         permissions: ["users:read"]
+    },
+    // Quản lý role nhưng KHÔNG có quyền users:* -> dùng để test chống leo thang (BR-02)
+    {
+        code: "role-editor", name: "Biên tập vai trò", isSystem: false,
+        permissions: ["roles:read", "roles:create", "roles:update", "permissions:read"]
     }
 ];
 
@@ -87,6 +92,13 @@ const USERS = [
         phone: "+84394085998", 
         password: "Admin@2026", 
         roles: ["custom"]
+    },
+    {
+        email: "duy.bv251054m+6@sis.hust.edu.vn", 
+        fullName: "Bùi Văn Duy", 
+        phone: "+84394085998", 
+        password: "Admin@2026", 
+        roles: ["role-editor"]
     }
 ];
 
