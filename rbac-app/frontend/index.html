@@ -70,7 +70,226 @@
         // Kiểm tra quyền phía giao diện (chỉ để ẩn/hiện)
         const can = (me, perm) => !!me && me.permissions.includes(perm);
         const sameId = (a, b) => String(a) === String(b);
-        
+
+        // Component App
+        function App() {
+            const [me, setMe] = useState(null);
+            const [checking, setChecking] = useState(!!getToken());
+            const [tab, setTab] = useState("users");
+            const [toast, setToast] = useState(null);
+            const toastTimer = useRef(null);
+
+            const notify = useCallback((type, text) => {
+                setToast({ type, text });
+                clearTimeout(toastTimer.current); // hủy hẹn giờ của thông báo trước
+                toastTimer.current = setTimeout(() => setToast(null), 4000);
+            }, []);
+
+            const loadMe = useCallback(async () => {
+                const { data } = await api.get("/me");
+                setMe(data);
+                return data;
+            }, []);
+
+            // Còn token trong sessionStorage (F5 trang) -> thử lấy lại /me
+            useEffect(() => {
+                if (!getToken()) return;
+                loadMe().catch(() => { }).finally(() => setChecking(false));
+            }, [loadMe]);
+
+            // Interceptor báo 401 -> về màn hình đăng nhập
+            useEffect(() => {
+                const onExpired = () => { setMe(null); notify("error", "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."); };
+                window.addEventListener("auth:expired", onExpired);
+                return () => window.removeEventListener("auth:expired", onExpired);
+            }, [notify]);
+
+            const logout = () => { setToken(null); setMe(null); };
+
+            if (checking) return <div className="container">Đang tải…</div>;
+
+            const tabs = [
+                can(me, "users:read") && { key: "users", label: "Người dùng" },
+                can(me, "roles:read") && { key: "roles", label: "Vai trò" },
+                me && { key: "me", label: "Hồ sơ của tôi" },
+            ].filter(Boolean);
+
+            const current = tabs.some((t) => t.key === tab) ? tab : tabs[0]?.key;
+
+            return (
+                <div className="container">
+                    {!me ? (
+                        <LoginPage onLoggedIn={loadMe} />
+                    ) : (
+                        <>
+                            <div className="header">
+                                <div>
+                                    <h1>Quản lý Người dùng &amp; Phân quyền</h1>
+                                    <div className="muted">
+                                        {me.fullName} ({me.email}) · {me.roles.map((r) => <span key={r.id}
+                                            className="badge">{r.name}</span>)}
+                                    </div>
+                                </div>
+                                <button onClick={logout}>Đăng xuất</button>
+                            </div>
+                            <div className="tabs">
+                                {tabs.map((t) => (
+                                    <button key={t.key} className={current === t.key ? "active" : ""}
+                                        onClick={() => setTab(t.key)}>{t.label}</button>
+                                ))}
+                            </div>
+                            {current === "users" && <UsersPage me={me} notify={notify}
+                                reloadMe={loadMe} />}
+                            {current === "roles" && <RolesPage me={me} notify={notify}
+                                reloadMe={loadMe} />}
+                            {current === "me" && <MyProfile me={me} />}
+                        </>
+                    )}
+                    {toast && <div className={`toast ${toast.type}`}>{toast.text}</div>}
+                </div>
+            );
+        }
+
+        //Component Login page 
+        function LoginPage({ onLoggedIn }) {
+            const [form, setForm] = useState({ email: "", password: "" });
+            const [error, setError] = useState(""); const [loading, setLoading] = useState(false);
+            
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+
+                if (!form.email.trim() || !form.password) return setError("Vui lòng nhập email và mật khẩu.");
+                
+                setLoading(true);
+                setError("");
+
+                try {
+                    const { data } = await api.post("/auth/tokens", {
+                        grantType: "password",
+                        email: form.email.trim(), password: form.password
+                    });
+
+                    setToken(data.accessToken);
+                    await onLoggedIn();
+                } catch (err) {
+                    setError(err.message); // 401 sai thông tin, 403 bị khóa, 0 lỗi mạng
+                } finally {
+                    setLoading(false);
+                }
+            };
+            return (
+                <form className="login" onSubmit={handleSubmit}>
+                    <h1>Đăng nhập</h1>
+                    <label>Email</label>
+                    <input name="email" type="email" value={form.email} onChange={(e) =>
+                        setForm({ ...form, email: e.target.value })} />
+                    <label>Mật khẩu</label>
+                    <input name="password" type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
+                    {error && <p className="error">{error}</p>}
+                    <div className="modal-actions">
+                        <button className="primary" type="submit" disabled={loading}>{loading ?
+                            "Đang đăng nhập…" : "Đăng nhập"}</button>
+                    </div>
+                </form>
+            );
+        }
+
+        // Component UsersPage
+        function UsersPage({ me, notify, reloadMe }) {
+            const [users, setUsers] = useState([]);
+            const [meta, setMeta] = useState({
+                page: 1, limit: 5, totalItems: 0, totalPages: 1
+            });
+            const [page, setPage] = useState(1);
+            const [limit, setLimit] = useState(5);
+            const [search, setSearch] = useState("");
+            const [status, setStatus] = useState("");
+            const [roleId, setRoleId] = useState("");
+            const [roles, setRoles] = useState([]);
+            const [editing, setEditing] = useState(undefined); // undefined: đóng, null: thêm mới, object: sửa
+            const [assigning, setAssigning] = useState(null);
+
+            const handleError = useCallback((err) => {
+                notify("error", err.message);
+                if (err.status === 403) reloadMe(); // quyền có thể vừa bị thay đổi -> đồng bộ giao diện
+            }, [notify, reloadMe]);
+
+            const fetchUsers = useCallback(async () => {
+                const params = { page, limit, sort: "-createdAt" };
+
+                if (search.trim().length >= 2) params.q = search.trim(); // backend yêu cầu ≥ 2 ký tự
+                if (status) params.status = status;
+                if (roleId) params.roleId = roleId;
+
+                try {
+                    const { data } = await api.get("/users", { params });
+                    setUsers(data.data);
+                    setMeta(data.meta);
+
+                    if (page > data.meta.totalPages) setPage(data.meta.totalPages); // vd. xóa dòng cuối của trang cuối
+                } catch (err) {
+                    handleError(err);
+                }
+            }, [page, limit, search, status, roleId, handleError]);
+
+            useEffect(() => { fetchUsers(); }, [fetchUsers]);
+
+            // Danh sách role cho bộ lọc và modal
+            useEffect(() => {
+                if (!can(me, "roles:read")) return;
+
+                (async () => {
+                    try {
+                        const { data } = await api.get("/roles", { params: { limit: 100 } });
+                        setRoles(data.data);
+                    } catch (err) { handleError(err); }
+                })();
+            }, [me, handleError]);
+
+            // Đổi bộ lọc / số dòng -> quay về trang 1
+            const changeFilter = (setter) => (value) => { setter(value); setPage(1); };
+            
+            const toggleLock = async (user) => {
+                // TODO: PATCH /users/:id { status: "locked" | "active" }, thông báo,
+                fetchUsers()
+            };
+            const deleteUser = async (user) => {
+                if (!window.confirm(`Bạn có chắc muốn xóa "${user.fullName}"?`)) return;
+                // TODO: DELETE /users/:id (204, không có body), thông báo, fetchUsers()
+            };
+
+            return (
+                <div>
+                    <div className="toolbar">
+                        <SearchBar onSearch={changeFilter(setSearch)} />
+                        
+                        {/* TODO: select trạng thái, select vai trò (khi có roles:read), nút Thêm (khi có users:create) */}
+                    </div>
+
+                    <UserTable users={users} me={me} offset={(meta.page - 1) * meta.limit}
+                        onEdit={setEditing} onAssign={setAssigning} onToggleLock={toggleLock}
+                        onDelete={deleteUser} />
+
+                    <Pagination meta={meta} limit={limit} onPageChange={setPage}
+                        onLimitChange={changeFilter(setLimit)} />
+
+                    {editing !== undefined && (
+                        <UserModal user={editing} roles={roles} me={me} notify={notify}
+                            onClose={() => setEditing(undefined)} onSaved={() => {
+                                setEditing(undefined); fetchUsers();
+                            }} />
+                    )}
+                    
+                    {assigning && (
+                        <RoleAssignModal user={assigning} roles={roles} me={me} notify={notify}
+                            onClose={() => setAssigning(null)} onSaved={() => {
+                                setAssigning(null);
+                                fetchUsers();
+                            }} />
+                    )}
+                </div>
+            );
+        }
     </script>
 </body>
 
