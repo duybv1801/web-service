@@ -14,7 +14,7 @@ Never read, open, print, `cat`, `grep`, `source` or otherwise access the content
 - `W4/` → `/W4/`
 - `rbac-app/frontend/` → `/rbac/`
 
-Nothing else is deployed (the backend is not hosted; the frontend calls `http://localhost:3001`). To publish a new static folder, add a `cp` line in the "Assemble site" step.
+Nothing else is deployed (the backend is hosted separately; the frontend calls `https://180-93-1-121.sslip.io/api/v1`). To publish a new static folder, add a `cp` line in the "Assemble site" step.
 
 ## rbac-app/backend
 
