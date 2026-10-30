@@ -29,10 +29,11 @@ jobs:
 
       - name: Assemble site
         run: |
-          mkdir -p _site/BaiTapCSS _site/W4
+          mkdir -p _site/BaiTapCSS _site/W4 _site/rbac
           cp -R baitap01/. _site/
           cp -R BaiTapCSS/. _site/BaiTapCSS/
           cp -R W4/. _site/W4/
+          cp -R rbac-app/frontend/. _site/rbac/
 
       - name: Upload site artifact
         uses: actions/upload-pages-artifact@v3
